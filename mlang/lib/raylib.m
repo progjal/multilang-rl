@@ -40,6 +40,13 @@ pub struct Music {
     ctxData: u64
 }
 
+pub struct Camera2D {
+    offset: Vector2
+    target: Vector2
+    rotation: f32
+    zoom: f32
+}
+
 pub dlimport "raylib" {
     @extern(name = "InitWindow")            fn initWindow(width: i32, height: i32, title: string)
     @extern(name = "CloseWindow")           fn closeWindow()
@@ -80,6 +87,7 @@ pub dlimport "raylib" {
     
     @extern(name = "LoadTexture")           fn loadTexture(path: string): Texture
     @extern(name = "DrawTexture")           fn drawTexture(texture: Texture, x: i32, y: i32, tint: i32)
+    @extern(name = "DrawTexturePro")        fn drawTexturePro(texture: Texture, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: f32, tint: i32)
     @extern(name = "DrawTextureRec")        fn drawTextureRec(texture: Texture, rec: Rectangle,
                                                               pos: Vector2, tint: i32)
     @extern(name = "DrawText")              fn drawText(text: string, x: i32, y: i32, size: i32, color: i32)
@@ -95,6 +103,9 @@ pub dlimport "raylib" {
     @extern(name = "IsMouseButtonUp")       fn isMouseButtonUp(button: i32): bool
     @extern(name = "GetMouseX")             fn getMouseX(): i32
     @extern(name = "GetMouseY")             fn getMouseY(): i32
+    
+    @extern(name = "BeginMode2D")           fn beginMode2D(camera: Camera2D)
+    @extern(name = "EndMode2D")             fn endMode2D()
 }
 
 pub const RED       = 0xFF0000FF

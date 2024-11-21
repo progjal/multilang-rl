@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <raylib.h>
 #include <stdbool.h>
+#include <time.h>
+#include <stdlib.h>
+
+#include "cloud.h"
 
 #define SCREEN_WIDTH 500
 #define SCREEN_HEIGHT 900
@@ -25,7 +29,15 @@ float leftForce = 0;
 float rightForce= 0;
 float forceX = 0;
 
+#define MAX_CLOUD 100
+Cloud clouds[MAX_CLOUD];
+int cloudCount = 0;
+
 Camera2D camera = (Camera2D){
+    .zoom = 1,
+};
+
+Camera2D cameraTemp = (Camera2D){
     .zoom = 1,
 };
 
@@ -36,7 +48,9 @@ void addRightForce(float dt);
 void releaseLeftForce();
 void releaseRightForce();
 
-int main() {    
+int main() {
+    srand(time(NULL));
+    
     SetTraceLogLevel(LOG_ERROR);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raylib C");
     SetWindowPosition(2100, 100);
@@ -45,6 +59,10 @@ int main() {
     playerTexture = LoadTexture("assets/images/player.png");
     playerTexture.width = 60;
     playerTexture.height = 120;
+    
+    clouds[cloudCount++] = createCloud(100, 1000);
+    clouds[cloudCount++] = createCloud(400, 2000);
+    clouds[cloudCount++] = createCloud(300, 4000);
     
     while (!WindowShouldClose()) {
         update(GetFrameTime());
@@ -55,9 +73,9 @@ int main() {
         BeginMode2D(camera);
         draw();
         
-        DrawRectangle(100, 1000, 100, 100, RED);
-		DrawRectangle(400, 2000, 100, 100, GREEN);
-		DrawRectangle(300, 4000, 100, 100, BLUE);
+        for (int a = 0; a < cloudCount; a++) {
+            drawCloud(&clouds[a]);
+        }
         
         EndMode2D();
         
@@ -147,6 +165,40 @@ void draw() {
     };
     
     DrawTexturePro(playerTexture, source, dest, origin, playerAngle, WHITE);
+    
+    if (leftForce > 1) {
+        float randW = (float)rand() / RAND_MAX;
+        float w = leftForce + randW;
+        float h = 10;
+        
+        cameraTemp.rotation = -25 + playerAngle;
+        cameraTemp.target.x = playerX;
+        cameraTemp.target.y = playerY;
+        cameraTemp.offset.x = playerX - playerTexture.width;
+        cameraTemp.offset.y = SCREEN_HEIGHT / 8 + playerTexture.height / 4;
+        
+        BeginMode2D(cameraTemp);
+        DrawEllipse(playerX, playerY, w, h, ORANGE);
+        EndMode2D();
+    }
+    
+    if (rightForce > 1) {
+        float randW = (float)rand() / RAND_MAX;
+        float w = rightForce + randW;
+        float h = 10;
+        
+        cameraTemp.rotation = 25 + playerAngle;
+        cameraTemp.target.x = playerX;
+        cameraTemp.target.y = playerY;
+        cameraTemp.offset.x = playerX + playerTexture.width;
+        cameraTemp.offset.y = SCREEN_HEIGHT / 8 + playerTexture.height / 4;
+        
+        BeginMode2D(cameraTemp);
+        DrawEllipse(playerX, playerY, w, h, ORANGE);
+        EndMode2D();
+    }
+    
+    BeginMode2D(camera);
 }
 
 void addLeftForce(float dt) {

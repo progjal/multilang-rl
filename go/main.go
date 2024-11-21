@@ -1,6 +1,8 @@
 package main
 
 import (
+	"math/rand"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -27,7 +29,13 @@ var leftForce float32 = 0
 var rightForce float32 = 0
 var forceX float32 = 0
 
+var clouds = []Cloud{}
+
 var camera = rl.Camera2D{
+	Zoom: 1,
+}
+
+var cameraTemp = rl.Camera2D{
 	Zoom: 1,
 }
 
@@ -40,6 +48,10 @@ func main() {
 	playerTexture.Width = 60
 	playerTexture.Height = 120
 	
+	clouds = append(clouds, createCloud(100, 1000))
+	clouds = append(clouds, createCloud(400, 2000))
+	clouds = append(clouds, createCloud(300, 4000))
+	
 	for !rl.WindowShouldClose() {
 		update(rl.GetFrameTime())
 		
@@ -49,9 +61,9 @@ func main() {
 		rl.BeginMode2D(camera)
 		draw()
 		
-		rl.DrawRectangle(100, 1000, 100, 100, rl.Red)
-		rl.DrawRectangle(400, 2000, 100, 100, rl.Green)
-		rl.DrawRectangle(300, 4000, 100, 100, rl.Blue)
+		for _, cloud := range clouds {
+			cloud.draw()
+		}
 		
 		rl.EndMode2D()
 		
@@ -137,6 +149,40 @@ func draw() {
     }
     
     rl.DrawTexturePro(playerTexture, source, dest, origin, playerAngle, rl.White)
+	
+	if leftForce > 1 {
+        randW := float32(rand.Intn(8))
+        w := leftForce + randW
+        const h = 10
+        
+        cameraTemp.Rotation = -25 + playerAngle
+        cameraTemp.Target.X = playerX
+        cameraTemp.Target.Y = playerY
+        cameraTemp.Offset.X = playerX - float32(playerTexture.Width)
+        cameraTemp.Offset.Y = float32(SCREEN_HEIGHT) / 8 + float32(playerTexture.Height) / 4
+        
+        rl.BeginMode2D(cameraTemp)
+        rl.DrawEllipse(int32(playerX), int32(playerY), w, h, rl.Orange)
+        rl.EndMode2D()
+    }
+    
+    if rightForce > 1 {
+        randW := float32(rand.Intn(8))
+        w := rightForce + randW
+        const h = 10
+        
+        cameraTemp.Rotation = 25 + playerAngle
+        cameraTemp.Target.X = playerX
+        cameraTemp.Target.Y = playerY
+        cameraTemp.Offset.X = playerX + float32(playerTexture.Width)
+        cameraTemp.Offset.Y = float32(SCREEN_HEIGHT) / 8 + float32(playerTexture.Height) / 4
+        
+        rl.BeginMode2D(cameraTemp)
+        rl.DrawEllipse(int32(playerX), int32(playerY), w, h, rl.Orange)
+        rl.EndMode2D()
+    }
+    
+    rl.BeginMode2D(camera)
 }
 
 func addLeftForce(dt float32) {

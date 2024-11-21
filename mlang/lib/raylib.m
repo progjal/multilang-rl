@@ -84,6 +84,8 @@ pub dlimport "raylib" {
     @extern(name = "DrawRectangle")         fn drawRectangle(x: i32, y: i32, w: i32, h: i32, color: i32)
     @extern(name = "DrawRectanglePro")      fn drawRectanglePro(rec: Rectangle, origin: Vector2, rotation: f32, color: i32)
     @extern(name = "DrawLine")              fn drawLine(x1: i32, y1: i32, x2: i32, y2: i32, color: i32)
+    @extern(name = "DrawCircle")            fn drawCircle(centerX: i32, centerY: i32, radius: f32, color: i32)
+    @extern(name = "DrawEllipse")           fn drawEllipse(centerX: i32, centerY: i32, radiusH: f32, radiusV: f32, color: i32)
     
     @extern(name = "LoadTexture")           fn loadTexture(path: string): Texture
     @extern(name = "DrawTexture")           fn drawTexture(texture: Texture, x: i32, y: i32, tint: i32)
@@ -115,6 +117,7 @@ pub const WHITE     = 0xFFFFFFFF
 pub const GRAY      = 0xFF999999
 pub const DARK_GRAY = 0xFF505050
 pub const DARK      = 0xFF222222
+pub const ORANGE    = 0xFF00A1FF
 
 pub const KEY_NULL            = 0
 pub const KEY_APOSTROPHE      = 39

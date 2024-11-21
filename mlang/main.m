@@ -1,4 +1,5 @@
 import "lib/raylib.m"
+import "cloud.m"
 
 const SCREEN_WIDTH = 500
 const SCREEN_HEIGHT = 900
@@ -30,7 +31,19 @@ var leftForce = 0.0
 var rightForce = 0.0
 var forceX = 0.0
 
+val clouds: [dyn]Cloud = .[]
+clouds.add(createCloud(100, 1000))
+clouds.add(createCloud(400, 2000))
+clouds.add(createCloud(300, 4000))
+
 val camera = Camera2D.{
+    offset = .{0, 0}
+    target = .{0, 0}
+    rotation = 0
+    zoom = 1
+}
+
+val cameraTemp = Camera2D.{
     offset = .{0, 0}
     target = .{0, 0}
     rotation = 0
@@ -45,11 +58,6 @@ while !windowShouldClose() {
     
     beginMode2D(camera)
     draw()
-    
-    drawRectangle(100, 1000, 100, 100, RED)
-    drawRectangle(400, 2000, 100, 100, GREEN)
-    drawRectangle(300, 4000, 100, 100, BLUE)
-    
     endMode2D()
     
     drawFPS(20, 20)
@@ -135,6 +143,44 @@ fn draw() {
     }
     
     drawTexturePro(playerTexture, source, dest, origin, playerAngle, WHITE)
+    
+    if leftForce > 1 {
+        const randW = <f32>random(0, 8)
+        const w = leftForce + randW
+        const h = 10.0
+        
+        cameraTemp.rotation = -25 + playerAngle
+        cameraTemp.target.x = playerX
+        cameraTemp.target.y = playerY
+        cameraTemp.offset.x = playerX - playerTexture.width
+        cameraTemp.offset.y = <f32>SCREEN_HEIGHT / 8 + playerTexture.height / 4
+        
+        beginMode2D(cameraTemp)
+        drawEllipse(<i32>playerX, <i32>playerY, w, h, ORANGE)
+        endMode2D()
+    }
+    
+    if (rightForce > 1) {
+        const randW = <f32>random(0, 8)
+        const w = rightForce + randW
+        const h = 10.0
+        
+        cameraTemp.rotation = 25 + playerAngle
+        cameraTemp.target.x = playerX
+        cameraTemp.target.y = playerY
+        cameraTemp.offset.x = playerX + playerTexture.width
+        cameraTemp.offset.y = <f32>SCREEN_HEIGHT / 8 + playerTexture.height / 4
+        
+        beginMode2D(cameraTemp)
+        drawEllipse(<i32>playerX, <i32>playerY, w, h, ORANGE)
+        endMode2D()
+    }
+    
+    beginMode2D(camera)
+    
+    for clouds |cloud| {
+        drawCloud(&cloud)
+    }
 }
 
 fn addLeftForce(dt: f32) {

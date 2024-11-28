@@ -3,7 +3,7 @@ import "lib/raylib.m"
 pub struct Cloud {
     x: f32
     y: f32
-    signature: [2]i32
+    signature: []i32
 }
 
 const baseSizeX = 160

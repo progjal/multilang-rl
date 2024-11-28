@@ -2,6 +2,8 @@ package main
 
 import (
 	"math/rand"
+	"strconv"
+	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -23,6 +25,14 @@ func createCloud(x float32, y float32) Cloud {
 	}
 }
 
+func createCloudWithSignature(x float32, y float32, hash string) Cloud {
+	return Cloud{
+		X: x,
+		Y: y,
+		Signature: parseSignature(hash),
+	}
+}
+
 func (cloud *Cloud) draw() {
 	for i := range cloud.Signature[0] {
         size := cloud.Signature[i * 3 + 1]
@@ -31,6 +41,18 @@ func (cloud *Cloud) draw() {
         
         rl.DrawCircle(int32(cloud.X) + left, int32(cloud.Y) + top, float32(size), rl.White)
     }
+}
+
+func parseSignature(hash string) []int32 {
+	res := []int32{}
+	parts := strings.Split(hash, ":")
+	
+	for _, part := range parts {
+		iPart, _ := strconv.Atoi(part)
+		res = append(res, int32(iPart))
+	}
+	
+	return res
 }
 
 func generateSignature() []int32 {

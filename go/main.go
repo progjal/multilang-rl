@@ -9,6 +9,9 @@ import (
 const SCREEN_WIDTH = 500
 const SCREEN_HEIGHT = 900
 
+const IMPORTED_MAP_WIDTH = 900
+const IMPORTED_MAP_HEIGHT = 1600
+
 const gravity float32 = 5
 const maxSpeedX float32 = 8.0
 const maxSpeedY float32 = 10.0
@@ -39,7 +42,7 @@ var cameraTemp = rl.Camera2D{
 	Zoom: 1,
 }
 
-func main() {
+func main() {	
 	rl.SetTraceLogLevel(rl.LogError)
 	rl.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raylib Go")
 	rl.SetTargetFPS(60)
@@ -48,9 +51,24 @@ func main() {
 	playerTexture.Width = 60
 	playerTexture.Height = 120
 	
-	clouds = append(clouds, createCloud(100, 1000))
-	clouds = append(clouds, createCloud(400, 2000))
-	clouds = append(clouds, createCloud(300, 4000))
+	theMap := loadMap()
+	
+	for _, obj := range theMap.Objects {
+		if obj.Name == "Cloud" {
+			cloud := createCloudWithSignature(obj.Position[0], obj.Position[1], obj.Hash)
+			
+			cloud.X = cloud.X * SCREEN_WIDTH / IMPORTED_MAP_WIDTH
+			cloud.Y = cloud.Y * SCREEN_HEIGHT / IMPORTED_MAP_HEIGHT
+			
+			for a := range cloud.Signature[0] {
+				cloud.Signature[a * 3 + 1] = int32(float32(cloud.Signature[a * 3 + 1]) * 0.5 * SCREEN_WIDTH / IMPORTED_MAP_WIDTH)
+				cloud.Signature[a * 3 + 2] = cloud.Signature[a * 3 + 2] * SCREEN_WIDTH / IMPORTED_MAP_WIDTH
+				cloud.Signature[a * 3 + 3] = cloud.Signature[a * 3 + 3] * SCREEN_HEIGHT / IMPORTED_MAP_HEIGHT
+			}
+			
+			clouds = append(clouds, cloud)
+		}
+	}
 	
 	for !rl.WindowShouldClose() {
 		update(rl.GetFrameTime())
@@ -123,9 +141,9 @@ func update(dt float32) {
     camera.Target.Y = playerY
     
     // Sementara
-    if playerY > 4500 {
-        playerY = 0
-    }
+    // if playerY > 4500 {
+    //     playerY = 0
+    // }
 }
 
 func draw() {

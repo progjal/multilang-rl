@@ -1,5 +1,6 @@
 import "lib/raylib.m"
 import "cloud.m"
+import "map_loader.m"
 
 const SCREEN_WIDTH = 500
 const SCREEN_HEIGHT = 900
@@ -32,6 +33,9 @@ var rightForce = 0.0
 var forceX = 0.0
 
 val clouds: [dyn]Cloud = .[]
+
+[[ loadMap() ]]
+
 clouds.add(createCloud(100, 1000))
 clouds.add(createCloud(400, 2000))
 clouds.add(createCloud(300, 4000))

@@ -3,11 +3,16 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "cloud.h"
+#include "map_loader.h"
 
 #define SCREEN_WIDTH 500
 #define SCREEN_HEIGHT 900
+
+#define IMPORTED_MAP_WIDTH 900
+#define IMPORTED_MAP_HEIGHT 1600
 
 #define GRAVITY 5.0
 #define MAX_SPEED_X 8.0
@@ -60,9 +65,28 @@ int main() {
     playerTexture.width = 60;
     playerTexture.height = 120;
     
-    clouds[cloudCount++] = createCloud(100, 1000);
-    clouds[cloudCount++] = createCloud(400, 2000);
-    clouds[cloudCount++] = createCloud(300, 4000);
+    Map map = loadMap();
+    
+    printf("size { %f, %f }\n", map.size[0], map.size[1]);
+    
+    for (int a = 0; a < map.objectCount; a++) {        
+        if (strcmp(map.objects[a].name, "Cloud") == 0) {
+            Cloud cloud = createCloudWithSignature(map.objects[a].position[0], map.objects[a].position[1], map.objects[a].hash, map.objects[a].hashCount);
+            
+			cloud.x = cloud.x * SCREEN_WIDTH / IMPORTED_MAP_WIDTH;
+			cloud.y = cloud.y * SCREEN_HEIGHT / IMPORTED_MAP_HEIGHT;
+			
+            printf("%f %f\n", cloud.x, cloud.y);
+            
+			for (int b = 0; b < cloud.signature[0]; b++) {
+				cloud.signature[b * 3 + 1] = (int)cloud.signature[b * 3 + 1] * 0.5 * SCREEN_WIDTH / IMPORTED_MAP_WIDTH;
+				cloud.signature[b * 3 + 2] = cloud.signature[b * 3 + 2] * SCREEN_WIDTH / IMPORTED_MAP_WIDTH;
+				cloud.signature[b * 3 + 3] = cloud.signature[b * 3 + 3] * SCREEN_HEIGHT / IMPORTED_MAP_HEIGHT;
+			}
+			
+            clouds[cloudCount++] = cloud;
+        }
+    }
     
     while (!WindowShouldClose()) {
         update(GetFrameTime());
@@ -139,9 +163,9 @@ void update(float dt) {
     camera.target.y = playerY;
     
     // Sementara
-    if (playerY > 4500) {
-        playerY = 0;
-    }
+    // if (playerY > 4500) {
+    //     playerY = 0;
+    // }
 }
 
 void draw() {

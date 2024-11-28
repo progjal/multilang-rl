@@ -1,8 +1,12 @@
 import rl from "raylib"
-import { Cloud, createCloud, drawCloud } from "./cloud"
+import { Cloud, createCloudWithSignature, drawCloud } from "./cloud"
+import { loadMap } from "./map_loader"
 
 const SCREEN_WIDTH = 500
 const SCREEN_HEIGHT = 900
+
+const IMPORTED_MAP_WIDTH = 900
+const IMPORTED_MAP_HEIGHT = 1600
 
 const gravity = 5
 const maxSpeedX = 8.0
@@ -28,9 +32,24 @@ let rightForce = 0
 let forceX = 0
 
 const clouds: Cloud[] = []
-clouds.push(createCloud(100, 1000))
-clouds.push(createCloud(400, 2000))
-clouds.push(createCloud(300, 4000))
+const map = loadMap()
+
+for (const obj of map.objects) {
+    if (obj.name === "Cloud") {
+        const cloud = createCloudWithSignature(obj.position[0], obj.position[1], obj.hash)
+        
+        cloud.x = cloud.x * SCREEN_WIDTH / IMPORTED_MAP_WIDTH
+        cloud.y = cloud.y * SCREEN_HEIGHT / IMPORTED_MAP_HEIGHT
+        
+        for (let a = 0; a < cloud.signature[0]; a++) {
+            cloud.signature[a * 3 + 1] = cloud.signature[a * 3 + 1] * 0.5 * SCREEN_WIDTH / IMPORTED_MAP_WIDTH
+            cloud.signature[a * 3 + 2] = cloud.signature[a * 3 + 2] * SCREEN_WIDTH / IMPORTED_MAP_WIDTH
+            cloud.signature[a * 3 + 3] = cloud.signature[a * 3 + 3] * SCREEN_HEIGHT / IMPORTED_MAP_HEIGHT
+        }
+        
+        clouds.push(cloud)
+    }
+}
 
 const playerTexture = rl.LoadTexture("assets/images/player.png")
 playerTexture.width = 60
@@ -39,8 +58,16 @@ playerTexture.height = 120
 const camera = rl.Camera2D(rl.Vector2(0, 0), rl.Vector2(0, 0), 0, 1)
 const cameraTemp = rl.Camera2D(rl.Vector2(0, 0), rl.Vector2(0, 0), 0, 1)
 
+let paused = false
+
 while (!rl.WindowShouldClose()) {
-    update(rl.GetFrameTime())
+    if (rl.IsKeyPressed(rl.KEY_SPACE)) {
+        paused = !paused
+    }
+    
+    if (!paused) {
+        update(rl.GetFrameTime())
+    }
     
     rl.BeginDrawing()
     rl.ClearBackground(rl.DARKGRAY)
@@ -111,9 +138,9 @@ function update(dt: number) {
     camera.target.y = playerY
     
     // Sementara
-    if (playerY > 4500) {
-        playerY = 0
-    }
+    // if (playerY > 4500) {
+    //     playerY = 0
+    // }
 }
 
 function draw() {

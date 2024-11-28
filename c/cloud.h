@@ -11,7 +11,7 @@ typedef struct {
 } Cloud;
 
 Cloud createCloud(float x, float y);
+Cloud createCloudWithSignature(float x, float y, char* hash, int hashCount);
 void drawCloud(Cloud* cloud);
-void generateSignature(Cloud* cloud);
 
 #endif

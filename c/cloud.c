@@ -1,10 +1,15 @@
 #include <stdlib.h>
 #include <raylib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "cloud.h"
 
 #define BASE_SIZE_X 160
 #define BASE_SIZE_Y 160
+
+void parseSignature(Cloud* cloud, char* hash, int hashCount);
+void generateSignature(Cloud* cloud);
 
 Cloud createCloud(float x, float y) {
     Cloud cloud = (Cloud){
@@ -17,6 +22,17 @@ Cloud createCloud(float x, float y) {
     return cloud;
 }
 
+Cloud createCloudWithSignature(float x, float y, char* hash, int hashCount) {
+    Cloud cloud = (Cloud){
+        .x = x,
+        .y = y,
+    };
+    
+    parseSignature(&cloud, hash, hashCount);
+    
+    return cloud;
+}
+
 void drawCloud(Cloud* cloud) {
     for (int a = 0; a < cloud->signature[0]; a++) {
         int size = cloud->signature[a * 3 + 1];
@@ -25,6 +41,29 @@ void drawCloud(Cloud* cloud) {
         
         DrawCircle((int)cloud->x + left, (int)cloud->y + top, (float)size, WHITE);
     }
+}
+
+void parseSignature(Cloud* cloud, char* hash, int hashCount) {
+    char digits[6];
+    int digitCount = 0;
+    int partCount = 0;
+    
+    for (int a = 0; a < hashCount; a++) {
+        if (hash[a] == ':') {
+            digits[digitCount] = 0;
+            digitCount = 0;
+            
+            cloud->signature[partCount] = atoi(digits);
+            
+            partCount += 1;
+        }
+        else {
+            digits[digitCount++] = hash[a];
+        }
+    }
+    
+    digits[digitCount] = 0;
+    cloud->signature[partCount] = atoi(digits);
 }
 
 void generateSignature(Cloud* cloud) {
